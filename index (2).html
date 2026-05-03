@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Work Tracker"/>
+<meta name="theme-color" content="#0f172a"/>
+<title>Work Hours Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--card:#1e293b;--border:rgba(148,163,184,0.12);--border2:rgba(148,163,184,0.22);--text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--accent:#38bdf8;--accent-dim:rgba(56,189,248,0.12);--accent-dim2:rgba(56,189,248,0.2);--green:#4ade80;--red:#f87171;--red-dim:rgba(248,113,113,0.12);--radius:14px;--radius-sm:9px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100%;padding-bottom:60px;}
+.app-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 20px 14px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+.app-title{font-size:18px;font-weight:600;letter-spacing:-0.3px;}.app-title span{color:var(--accent);}
+.icon-btn{width:38px;height:38px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.icon-btn:active{transform:scale(0.93);background:var(--accent-dim);color:var(--accent);}
+.container{max-width:600px;margin:0 auto;padding:20px 16px 0;}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;text-align:center;}
+.metric-val{font-size:22px;font-weight:600;font-family:'DM Mono',monospace;line-height:1;margin-bottom:4px;}
+.metric-val.accent{color:var(--accent);}.metric-val.green{color:var(--green);}
+.metric-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;}
+.mic-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:20px;}
+.mic-ring{width:80px;height:80px;border-radius:50%;border:2px solid var(--border2);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;}
+.mic-ring:active{transform:scale(0.94);}
+.mic-ring.recording{border-color:var(--red);background:var(--red-dim);animation:mic-pulse 1.2s infinite;}
+.mic-ring.recording svg{color:var(--red);}
+@keyframes mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,0.3);}50%{box-shadow:0 0 0 12px rgba(248,113,113,0);}}
+.mic-ring svg{width:32px;height:32px;color:var(--text2);}
+.mic-hint{font-size:13px;color:var(--text3);text-align:center;line-height:1.6;}.mic-hint strong{color:var(--text2);font-weight:500;}
+.transcript-area{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;color:var(--text);line-height:1.5;min-height:48px;display:none;outline:none;}
+.transcript-area:focus{border-color:var(--accent);}
+.preview-card{width:100%;background:var(--bg);border:1px solid var(--accent-dim2);border-radius:var(--radius-sm);padding:12px 14px;display:none;flex-wrap:wrap;gap:8px;}
+.preview-field{flex:1;min-width:80px;}.preview-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;}
+.preview-val{font-size:14px;font-weight:500;font-family:'DM Mono',monospace;color:var(--accent);}
+.preview-note{width:100%;font-size:12px;color:var(--text2);font-style:italic;}
+.add-btn{width:100%;padding:13px;border-radius:var(--radius-sm);background:var(--accent);color:#0f172a;border:none;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;display:none;}
+.add-btn:active{transform:scale(0.97);opacity:0.9;}.add-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.tips{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;}
+.tips-title{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.tip{font-size:13px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);line-height:1.5;}.tip:last-child{border:none;padding-bottom:0;}
+.tip em{color:var(--accent);font-style:normal;}
+.section-title{font-size:13px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;}
+.log-list{display:flex;flex-direction:column;gap:8px;}
+.entry-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;animation:slide-in 0.25s ease;}
+@keyframes slide-in{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.entry-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.entry-date{font-size:14px;font-weight:500;}.entry-day{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--accent-dim);color:var(--accent);margin-left:6px;font-weight:500;}
+.entry-del{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.entry-del:active{background:var(--red-dim);color:var(--red);}
+.entry-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.ef-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
+.ef-val{font-size:14px;font-weight:500;font-family:'DM Mono',monospace;}.ef-val.accent{color:var(--accent);}.ef-val.green{color:var(--green);}
+.entry-time{font-size:12px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.entry-note{font-size:12px;color:var(--text3);margin-top:4px;font-style:italic;}
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;line-height:1.8;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150;display:none;}.overlay.show{display:block;}
+.export-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;padding:20px 16px 36px;transform:translateY(100%);transition:transform 0.3s ease;z-index:200;}.export-sheet.open{transform:translateY(0);}
+.sheet-handle{width:40px;height:4px;border-radius:2px;background:var(--bg3);margin:0 auto 18px;}
+.sheet-title{font-size:16px;font-weight:600;margin-bottom:16px;text-align:center;}
+.sheet-btn{width:100%;padding:15px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.sheet-btn:active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.sheet-btn svg{width:20px;height:20px;flex-shrink:0;}
+.sheet-cancel{width:100%;padding:14px;border-radius:var(--radius);border:none;background:transparent;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;margin-top:4px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:12px 20px;border-radius:30px;font-size:14px;font-weight:500;z-index:300;transition:transform 0.3s ease;white-space:nowrap;}.toast.show{transform:translateX(-50%) translateY(0);}
+.install-banner{background:var(--accent-dim);border:1px solid var(--accent-dim2);border-radius:var(--radius);padding:12px 14px;margin-bottom:20px;display:none;font-size:13px;color:var(--text2);line-height:1.5;align-items:center;gap:10px;}.install-banner.show{display:flex;}
+.install-banner svg{width:18px;height:18px;color:var(--accent);flex-shrink:0;}
+.install-close{margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:0 0 0 8px;line-height:1;}
+@media(max-width:400px){.summary{gap:7px;}.metric-val{font-size:18px;}.entry-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-title">Work <span>Tracker</span></div>
+  <button class="icon-btn" onclick="openExport()" title="Export">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  </button>
+</header>
+<div class="container">
+  <div class="install-banner" id="installBanner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3" stroke-linecap="round"/></svg>
+    <span id="installText">Add to Home Screen for the best experience.</span>
+    <button class="install-close" onclick="document.getElementById('installBanner').classList.remove('show')">×</button>
+  </div>
+  <div class="summary">
+    <div class="metric"><div class="metric-val accent" id="sumHours">0.0</div><div class="metric-lbl">Hours</div></div>
+    <div class="metric"><div class="metric-val" id="sumUpfront">$0</div><div class="metric-lbl">Upfront</div></div>
+    <div class="metric"><div class="metric-val green" id="sumTotal">$0</div><div class="metric-lbl">Earned</div></div>
+  </div>
+  <div class="mic-card">
+    <div class="mic-ring" id="micRing" onclick="toggleMic()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="9" y="2" width="6" height="12" rx="3"/>
+        <path d="M5 10a7 7 0 0 0 14 0"/>
+        <line x1="12" y1="17" x2="12" y2="22"/>
+        <line x1="9" y1="22" x2="15" y2="22"/>
+      </svg>
+    </div>
+    <div class="mic-hint" id="micHint"><strong>Tap the mic</strong> and speak your session<br/>or type directly in the box below</div>
+    <div class="transcript-area" id="transcriptArea" contenteditable="true" spellcheck="false" oninput="onType()"></div>
+    <div class="preview-card" id="previewCard">
+      <div class="preview-field"><div class="preview-lbl">Date</div><div class="preview-val" id="pvDate">-</div></div>
+      <div class="preview-field"><div class="preview-lbl">Day</div><div class="preview-val" id="pvDay">-</div></div>
+      <div class="preview-field"><div class="preview-lbl">Time</div><div class="preview-val" id="pvTime">-</div></div>
+      <div class="preview-field"><div class="preview-lbl">Hours</div><div class="preview-val" id="pvHours">-</div></div>
+      <div class="preview-field"><div class="preview-lbl">Upfront</div><div class="preview-val" id="pvUpfront">-</div></div>
+      <div class="preview-field"><div class="preview-lbl">Total</div><div class="preview-val" id="pvTotal">-</div></div>
+      <div class="preview-note" id="pvNote"></div>
+    </div>
+    <button class="add-btn" id="addBtn" onclick="handleAddBtn()">Parse &amp; Preview</button>
+  </div>
+  <div class="tips">
+    <div class="tips-title">How to speak or type</div>
+    <div class="tip"><em>"Today 9am to 5pm 8 hours 300 upfront 800 total"</em></div>
+    <div class="tip"><em>"Yesterday I worked 6 hours earned 500 dollars"</em></div>
+    <div class="tip"><em>"Monday 10 to 4 6 hours upfront 200 total 600"</em></div>
+    <div class="tip"><em>"May 1st 7 hours no upfront total 350"</em></div>
+  </div>
+  <div class="section-title">Session log</div>
+  <div class="log-list" id="logList"></div>
+</div>
+<div class="overlay" id="overlay" onclick="closeExport()"></div>
+<div class="export-sheet" id="exportSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Export your log</div>
+  <button class="sheet-btn" onclick="exportPDF()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Download as PDF
+  </button>
+  <button class="sheet-btn" onclick="exportCSV()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+    Download as CSV (Excel)
+  </button>
+  <button class="sheet-cancel" onclick="closeExport()">Cancel</button>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS=['january','february','march','april','may','june','july','august','september','october','november','december'];
+const MONTH_SHORT=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+let entries=JSON.parse(localStorage.getItem('wt_entries')||'[]');
+let recognition=null,isRecording=false,pendingEntry=null,parsed=false;
+
+renderAll();showInstallHint();
+
+// Show the type box by default so it's always accessible
+(function(){
+  const ta=document.getElementById('transcriptArea');
+  ta.style.display='block';
+  document.getElementById('addBtn').style.display='block';
+})();
+
+function onType(){
+  parsed=false;
+  const btn=document.getElementById('addBtn');
+  btn.textContent='Parse & Preview';
+}
+
+function handleAddBtn(){
+  if(!parsed){ doParsePreview(); } else { confirmAdd(); }
+}
+
+function doParsePreview(){
+  const ta=document.getElementById('transcriptArea');
+  const text=(ta.innerText||ta.textContent||'').trim();
+  if(!text){showToast('Please speak or type your session first');return;}
+  tryParse(text);
+}
+
+function toggleMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showToast('Mic not supported — please type your session');return;}
+  if(!recognition){
+    recognition=new SR();
+    recognition.continuous=false;recognition.interimResults=true;recognition.lang='en-US';
+    recognition.onstart=()=>{isRecording=true;document.getElementById('micRing').classList.add('recording');setHint('Listening\u2026 speak now');};
+    recognition.onend=()=>{
+      isRecording=false;document.getElementById('micRing').classList.remove('recording');
+      const ta=document.getElementById('transcriptArea');
+      const text=(ta.innerText||ta.textContent||'').trim();
+      if(text){tryParse(text);}else{setHint('<strong>Nothing heard.</strong> Try again or type below.');}
+    };
+    recognition.onerror=e=>{isRecording=false;document.getElementById('micRing').classList.remove('recording');showToast('Mic error: '+e.error);};
+    recognition.onresult=e=>{
+      const t=Array.from(e.results).map(r=>r[0].transcript).join(' ');
+      const ta=document.getElementById('transcriptArea');
+      ta.innerText=t;ta.style.display='block';
+    };
+  }
+  if(isRecording){recognition.stop();return;}
+  document.getElementById('transcriptArea').innerText='';
+  document.getElementById('previewCard').style.display='none';
+  parsed=false;
+  const btn=document.getElementById('addBtn');
+  btn.textContent='Parse & Preview';
+  recognition.start();
+}
+
+function tryParse(rawText){
+  const text=rawText.toLowerCase().replace(/[,]/g,' ').replace(/\s+/g,' ').trim();
+  const entry={};
+  const now=new Date();
+
+  // DATE
+  if(/\btoday\b/.test(text)){entry.date=fmtDate(now);}
+  else if(/\byesterday\b/.test(text)){const y=new Date(now);y.setDate(y.getDate()-1);entry.date=fmtDate(y);}
+  else{
+    const dayNames=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    let found=false;
+    for(let i=0;i<dayNames.length;i++){
+      if(new RegExp('\\b'+dayNames[i]+'\\b').test(text)){
+        const d=new Date(now);let diff=now.getDay()-i;if(diff<0)diff+=7;if(diff===0)diff=7;d.setDate(d.getDate()-diff);entry.date=fmtDate(d);found=true;break;
+      }
+    }
+    if(!found){
+      let dm=text.match(/\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/);
+      if(dm){const yr=dm[3]?(dm[3].length===2?'20'+dm[3]:dm[3]):now.getFullYear();entry.date=`${yr}-${pad(dm[1])}-${pad(dm[2])}`;}
+      else{
+        let mm=null,dd=null;
+        for(let mi=0;mi<MONTHS.length;mi++){
+          const mn=MONTHS[mi],ms=MONTH_SHORT[mi];
+          const re=new RegExp('\\b(?:'+mn+'|'+ms+')\\s*(\\d{1,2})(?:st|nd|rd|th)?\\b|\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?(?:'+mn+'|'+ms+')\\b');
+          const mx=text.match(re);
+          if(mx){mm=mi+1;dd=parseInt(mx[1]||mx[2]);break;}
+        }
+        if(mm&&dd){entry.date=`${now.getFullYear()}-${pad(mm)}-${pad(dd)}`;}
+        else{entry.date=fmtDate(now);}
+      }
+    }
+  }
+  const dObj=new Date(entry.date+'T00:00:00');
+  entry.day=DAYS[dObj.getDay()];
+
+  // TIME
+  const timeRe=/(\d{1,2}(?::\d{2})?)\s*(?:am|pm)?\s*(?:to|till|until|through|-|–)\s*(\d{1,2}(?::\d{2})?)\s*(?:am|pm)?/i;
+  const tm=text.match(timeRe);
+  if(tm){
+    entry.time=tm[0].replace(/\s+/g,' ').trim();
+    const parts=tm[0].split(/to|till|until|through|-|–/i);
+    const h1=parseT(parts[0].trim());
+    const h2=parseT(parts[1]?parts[1].trim():'');
+    if(h1!==null&&h2!==null){let diff=h2-h1;if(diff<=0)diff+=12;entry._ch=Math.round(diff*10)/10;}
+  }else{entry.time='';}
+
+  // HOURS
+  const hm=text.match(/(\d+(?:\.\d+)?)\s*(?:hours?|hrs?)\b/i);
+  if(hm){entry.hours=parseFloat(hm[1]);}
+  else if(/half[\s-]?day/.test(text)){entry.hours=4;}
+  else if(/full[\s-]?day/.test(text)){entry.hours=8;}
+  else if(entry._ch){entry.hours=entry._ch;}
+  else{entry.hours=0;}
+
+  // UPFRONT
+  const um=text.match(/(?:upfront|advance|up\s+front)\s*\$?(\d+(?:\.\d+)?)|(\$?\d+(?:\.\d+)?)\s+(?:upfront|advance)/i);
+  entry.upfront=um?parseFloat((um[1]||um[2]).replace('$','')):0;
+
+  // TOTAL — look for explicit keywords first
+  const totKw=text.match(/(?:total|earned?|paid?|made|received?|fee|salary)\s*\$?(\d+(?:\.\d+)?)/i);
+  const dollarAmt=text.match(/\$(\d+(?:\.\d+)?)/);
+  const dollarWord=text.match(/(\d+(?:\.\d+)?)\s+(?:dollars?|bucks?|usd)\b/i);
+  if(totKw){entry.total=parseFloat(totKw[1]);}
+  else if(dollarAmt){entry.total=parseFloat(dollarAmt[1]);}
+  else if(dollarWord){entry.total=parseFloat(dollarWord[1]);}
+  else{
+    // grab all numbers > 10, exclude hours and upfront, take the largest
+    const nums=[...text.matchAll(/\b(\d{2,}(?:\.\d+)?)\b/g)].map(m=>parseFloat(m[1])).filter(n=>n!==entry.hours&&n!==entry.upfront&&n>10);
+    entry.total=nums.length?Math.max(...nums):0;
+  }
+  // if total same as upfront and upfront > 0, total is probably wrong
+  if(entry.total>0&&entry.total===entry.upfront){entry.total=0;}
+
+  // NOTE
+  const noteClean=rawText.replace(/\b(today|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,'').replace(/\b\d+(?:\.\d+)?\s*(?:hours?|hrs?|am|pm|dollars?|bucks?|usd)\b/gi,'').replace(/(?:upfront|advance|total|earned|paid|from|to|till|until|through)\b/gi,'').replace(/\$\d+(?:\.\d+)?/g,'').replace(/\s+/g,' ').trim();
+  entry.note=noteClean.length>3?cap(noteClean):'';
+
+  pendingEntry=entry;
+  parsed=true;
+  showPreview(entry);
+}
+
+function parseT(s){
+  if(!s)return null;
+  s=s.trim();
+  const isPM=/pm/i.test(s);const isAM=/am/i.test(s);
+  s=s.replace(/[apmAPM]/g,'').trim();
+  const parts=s.split(':');
+  let h=parseInt(parts[0])||0;
+  const m=parts[1]?parseInt(parts[1])/60:0;
+  if(isPM&&h<12)h+=12;
+  else if(!isPM&&!isAM&&h<=7)h+=12; // assume pm for small numbers like 5
+  return h+m;
+}
+
+function showPreview(e){
+  document.getElementById('pvDate').textContent=e.date;
+  document.getElementById('pvDay').textContent=e.day||'-';
+  document.getElementById('pvTime').textContent=e.time||'-';
+  document.getElementById('pvHours').textContent=e.hours?e.hours.toFixed(1)+'h':'-';
+  document.getElementById('pvUpfront').textContent='$'+parseFloat(e.upfront||0).toFixed(2);
+  document.getElementById('pvTotal').textContent='$'+parseFloat(e.total||0).toFixed(2);
+  document.getElementById('pvNote').textContent=e.note||'';
+  document.getElementById('previewCard').style.display='flex';
+  const btn=document.getElementById('addBtn');
+  btn.textContent='Confirm & Add to log';
+  setHint('Check the preview \u2014 correct? Tap confirm to save.');
+}
+
+function confirmAdd(){
+  if(!pendingEntry)return;
+  entries.unshift(pendingEntry);
+  localStorage.setItem('wt_entries',JSON.stringify(entries));
+  renderAll();
+  // reset
+  document.getElementById('transcriptArea').innerText='';
+  document.getElementById('previewCard').style.display='none';
+  document.getElementById('addBtn').textContent='Parse & Preview';
+  parsed=false;pendingEntry=null;
+  setHint('<strong>Session saved!</strong> Tap mic or type another session.');
+  showToast('Session logged \u2713');
+}
+
+function renderAll(){renderSummary();renderLog();}
+function renderSummary(){
+  const h=entries.reduce((s,e)=>s+parseFloat(e.hours||0),0);
+  const u=entries.reduce((s,e)=>s+parseFloat(e.upfront||0),0);
+  const t=entries.reduce((s,e)=>s+parseFloat(e.total||0),0);
+  document.getElementById('sumHours').textContent=h.toFixed(1);
+  document.getElementById('sumUpfront').textContent=fmtMoney(u);
+  document.getElementById('sumTotal').textContent=fmtMoney(t);
+}
+function renderLog(){
+  const el=document.getElementById('logList');
+  if(!entries.length){el.innerHTML='<div class="empty">No sessions yet.<br/>Tap the mic or type to log your first session.</div>';return;}
+  el.innerHTML=entries.map((e,i)=>`
+    <div class="entry-card">
+      <div class="entry-top">
+        <div><span class="entry-date">${e.date}</span><span class="entry-day">${(e.day||'').slice(0,3)}</span></div>
+        <button class="entry-del" onclick="deleteEntry(${i})">&#x2715;</button>
+      </div>
+      <div class="entry-grid">
+        <div><div class="ef-lbl">Hours</div><div class="ef-val accent">${parseFloat(e.hours||0).toFixed(1)}h</div></div>
+        <div><div class="ef-lbl">Upfront</div><div class="ef-val">${fmtMoney(e.upfront||0)}</div></div>
+        <div><div class="ef-lbl">Total</div><div class="ef-val green">${fmtMoney(e.total||0)}</div></div>
+      </div>
+      ${e.time?`<div class="entry-time">&#9201; ${e.time}</div>`:''}
+      ${e.note?`<div class="entry-note">${e.note}</div>`:''}
+    </div>`).join('');
+}
+function deleteEntry(i){entries.splice(i,1);localStorage.setItem('wt_entries',JSON.stringify(entries));renderAll();showToast('Entry removed');}
+
+function openExport(){if(!entries.length){showToast('No entries to export yet');return;}document.getElementById('exportSheet').classList.add('open');document.getElementById('overlay').classList.add('show');}
+function closeExport(){document.getElementById('exportSheet').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+
+function exportCSV(){
+  closeExport();
+  const hdr='Date,Day,Time,Hours,Upfront ($),Total ($),Note';
+  const rows=entries.map(e=>[e.date,e.day||'','"'+(e.time||'')+'"',parseFloat(e.hours||0).toFixed(1),parseFloat(e.upfront||0).toFixed(2),parseFloat(e.total||0).toFixed(2),'"'+(e.note||'')+'"'].join(','));
+  const h=entries.reduce((s,e)=>s+parseFloat(e.hours||0),0);
+  const u=entries.reduce((s,e)=>s+parseFloat(e.upfront||0),0);
+  const t=entries.reduce((s,e)=>s+parseFloat(e.total||0),0);
+  rows.push(['TOTAL','','',h.toFixed(1),u.toFixed(2),t.toFixed(2),''].join(','));
+  const blob=new Blob([[hdr,...rows].join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='work_hours_'+todayStr()+'.csv';a.click();
+  showToast('CSV downloaded');
+}
+function exportPDF(){
+  closeExport();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  doc.setFillColor(15,23,42);doc.rect(0,0,210,297,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(241,245,249);doc.text('Work Hours Report',14,22);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(100,116,139);
+  doc.text('Generated: '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),14,30);
+  const h=entries.reduce((s,e)=>s+parseFloat(e.hours||0),0);
+  const u=entries.reduce((s,e)=>s+parseFloat(e.upfront||0),0);
+  const t=entries.reduce((s,e)=>s+parseFloat(e.total||0),0);
+  doc.setFontSize(11);doc.setTextColor(148,163,184);
+  doc.text('Total: '+h.toFixed(1)+'h  |  Upfront: $'+u.toFixed(2)+'  |  Earned: $'+t.toFixed(2),14,40);
+  doc.autoTable({startY:48,head:[['Date','Day','Time','Hours','Upfront','Total','Note']],body:entries.map(e=>[e.date,e.day||'',e.time||'-',parseFloat(e.hours||0).toFixed(1)+'h','$'+parseFloat(e.upfront||0).toFixed(2),'$'+parseFloat(e.total||0).toFixed(2),e.note||'']),foot:[['TOTAL','','',h.toFixed(1)+'h','$'+u.toFixed(2),'$'+t.toFixed(2),'']],headStyles:{fillColor:[30,41,59],textColor:[148,163,184],fontStyle:'bold',fontSize:9},bodyStyles:{fillColor:[30,41,59],textColor:[241,245,249],fontSize:9},alternateRowStyles:{fillColor:[51,65,85]},footStyles:{fillColor:[56,189,248],textColor:[15,23,42],fontStyle:'bold',fontSize:9},styles:{cellPadding:4}});
+  doc.save('work_hours_'+todayStr()+'.pdf');
+  showToast('PDF downloaded');
+}
+
+function fmtDate(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function pad(n){return String(n).padStart(2,'0');}
+function todayStr(){return fmtDate(new Date());}
+function fmtMoney(n){return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function setHint(t){document.getElementById('micHint').innerHTML=t;}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function showInstallHint(){
+  const ua=navigator.userAgent;const banner=document.getElementById('installBanner');const txt=document.getElementById('installText');
+  const isStandalone=window.navigator.standalone||window.matchMedia('(display-mode: standalone)').matches;
+  if(isStandalone)return;
+  if(/iphone|ipad|ipod/i.test(ua)){txt.textContent='Tap Share \u2192 "Add to Home Screen" to install as an app';banner.classList.add('show');}
+  else if(/android/i.test(ua)){txt.textContent='Tap \u22EE menu \u2192 "Add to Home screen" to install as an app';banner.classList.add('show');}
+}
+</script>
+</body>
+</html>
