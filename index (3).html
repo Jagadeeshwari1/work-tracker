@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Babysitter Tracker"/>
+<meta name="theme-color" content="#7c3aed"/>
+<title>Babysitter Hours Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{--pur:#7c3aed;--pur2:#6d28d9;--pl:#ede9fe;--pd:rgba(124,58,237,0.10);--pink:#ec4899;--pkl:#fce7f3;--bg:#faf5ff;--card:#fff;--c2:#f5f3ff;--tx:#1e1b4b;--t2:#6b7280;--t3:#9ca3af;--gr:#059669;--gl:#d1fae5;--am:#d97706;--al:#fef3c7;--re:#dc2626;--rl:#fee2e2;--bo:#e9d5ff;--b2:#ddd6fe;--r:16px;--rs:10px;--sh:0 2px 12px rgba(124,58,237,0.08);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding-bottom:80px;}
+.hdr{background:linear-gradient(135deg,var(--pur),var(--pink));padding:20px 18px 28px;position:relative;overflow:hidden;}
+.hdr::before{content:'';position:absolute;top:-30px;right:-30px;width:110px;height:110px;background:rgba(255,255,255,0.07);border-radius:50%;}
+.ht{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.xbtn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.35);border-radius:10px;padding:7px 14px;color:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+.xbtn:active{background:rgba(255,255,255,0.3);}
+.hdr h1{color:#fff;font-size:22px;font-weight:800;}
+.hdr p{color:rgba(255,255,255,0.75);font-size:13px;margin-top:2px;}
+.wrap{max-width:540px;margin:0 auto;}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px;margin-top:-18px;margin-bottom:16px;}
+.sc{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);border:1px solid var(--bo);}
+.sv{font-size:24px;font-weight:800;color:var(--pur);line-height:1;}.sv.g{color:var(--gr);}
+.sl{font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+.ss{font-size:11px;color:var(--t3);margin-top:2px;}
+.cont{padding:0 14px;max-width:540px;margin:0 auto;}
+.inst{background:var(--pl);border:1px solid var(--b2);border-radius:var(--r);padding:11px 14px;margin-bottom:14px;display:none;font-size:13px;color:var(--pur);font-weight:600;align-items:center;gap:8px;line-height:1.5;}
+.inst.on{display:flex;}
+.ix{margin-left:auto;background:none;border:none;color:var(--t3);cursor:pointer;font-size:20px;padding:0;}
+.rb{background:var(--gl);border:1px solid #6ee7b7;border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--gr);font-weight:700;}
+.stl{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.qg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.qb{background:var(--card);border:2px solid var(--bo);border-radius:var(--r);padding:12px 8px;cursor:pointer;text-align:center;box-shadow:var(--sh);}
+.qb:active{border-color:var(--pur);background:var(--pl);}
+.qi{font-size:22px;margin-bottom:3px;}.ql{font-size:12px;font-weight:800;color:var(--tx);line-height:1.3;}
+.qs{font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4;}
+.mc{background:var(--card);border:1px solid var(--bo);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:14px;}
+.mr{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.mg{width:56px;height:56px;min-width:56px;border-radius:50%;border:2px solid var(--b2);background:var(--pl);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;transition:transform .15s;}
+.mg:active{transform:scale(.92);}
+.mg.rec{border-color:var(--re);background:var(--rl);animation:rp 1.2s infinite;}
+@keyframes rp{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.3);}50%{box-shadow:0 0 0 10px rgba(220,38,38,0);}}
+.mtt{font-size:14px;font-weight:700;color:var(--tx);}.msb{font-size:12px;color:var(--t2);margin-top:2px;}
+.tb{width:100%;background:var(--c2);border:1.5px solid var(--b2);border-radius:var(--rs);padding:10px 12px;font-size:14px;font-family:'Nunito',sans-serif;color:var(--tx);min-height:44px;outline:none;line-height:1.5;}
+.tb:focus{border-color:var(--pur);}
+.pv{background:var(--pd);border:1.5px solid var(--b2);border-radius:var(--rs);padding:12px;margin-top:10px;display:none;flex-wrap:wrap;gap:8px;}
+.pf{flex:1;min-width:76px;}.pfl{font-size:10px;font-weight:700;color:var(--pur);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
+.pfv{font-size:15px;font-weight:800;color:var(--tx);}
+.pw{width:100%;font-size:12px;font-weight:700;color:var(--am);background:var(--al);border-radius:6px;padding:4px 8px;margin-top:4px;}
+.pn{width:100%;font-size:12px;color:var(--t2);margin-top:2px;}
+.cb{width:100%;padding:13px;border-radius:var(--rs);background:linear-gradient(135deg,var(--pur),var(--pink));color:#fff;border:none;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px;display:none;box-shadow:0 4px 14px rgba(124,58,237,.3);}
+.cb:active{transform:scale(.98);}
+.tips{background:var(--pkl);border:1px solid #f9a8d4;border-radius:var(--r);padding:14px;margin-bottom:14px;}
+.tips .stl{color:var(--pink);}
+.tip{font-size:13px;color:#be185d;padding:4px 0;border-bottom:1px solid #fbcfe8;line-height:1.5;}.tip:last-child{border:none;}
+.tip em{font-weight:800;font-style:normal;}
+.en{background:var(--card);border:1px solid var(--bo);border-radius:var(--r);padding:14px;margin-bottom:8px;box-shadow:var(--sh);animation:si .2s ease;}
+@keyframes si{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
+.et{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.ed{font-size:15px;font-weight:800;}
+.edy{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:var(--pl);color:var(--pur);margin-left:5px;}
+.esh{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--al);color:var(--am);margin-left:5px;}
+.edl{width:30px;height:30px;border-radius:8px;border:1px solid var(--bo);background:transparent;color:var(--t3);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.edl:active{background:var(--rl);color:var(--re);}
+.eg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.ef{text-align:center;}.efl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;margin-bottom:2px;}
+.efv{font-size:14px;font-weight:800;}.efv.p{color:var(--pur);}.efv.g{color:var(--gr);}.efv.a{color:var(--am);}
+.etm{font-size:12px;color:var(--t3);margin-top:8px;padding-top:8px;border-top:1px solid var(--bo);}
+.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:14px;line-height:2;}
+.ei{font-size:44px;display:block;margin-bottom:6px;}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;backdrop-filter:blur(2px);}.ov.on{display:block;}
+.sh{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-radius:24px 24px 0 0;padding:20px 16px 44px;z-index:200;transform:translateY(100%);transition:transform .3s ease;}.sh.on{transform:translateY(0);}
+.shh{width:40px;height:4px;border-radius:2px;background:var(--bo);margin:0 auto 16px;}
+.sht{font-size:17px;font-weight:800;text-align:center;margin-bottom:16px;}
+.sbb{width:100%;padding:14px;border-radius:var(--r);border:2px solid var(--bo);background:var(--c2);color:var(--tx);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.sbb:active{border-color:var(--pur);background:var(--pl);color:var(--pur);}
+.sbb span{font-size:22px;}
+.scc{width:100%;padding:13px;border-radius:var(--r);border:none;background:transparent;color:var(--t3);font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;cursor:pointer;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e1b4b;color:#fff;padding:12px 22px;border-radius:30px;font-size:14px;font-weight:700;z-index:300;transition:transform .3s ease;white-space:nowrap;}.toast.on{transform:translateX(-50%) translateY(0);}
+@media(max-width:380px){.eg{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="ht"><span style="font-size:28px">🧒</span><button class="xbtn" onclick="openX()">📤 Export / Send</button></div>
+  <h1>Babysitter Tracker</h1>
+  <p>Track hours &amp; pay — speak or tap!</p>
+</div>
+<div class="wrap">
+  <div class="sum">
+    <div class="sc"><div class="sv" id="sH">0.0</div><div class="sl">Total Hours</div><div class="ss" id="sD">0 days logged</div></div>
+    <div class="sc"><div class="sv g" id="sE">$0</div><div class="sl">Total Earned</div><div class="ss" id="sU">$0 paid upfront</div></div>
+  </div>
+</div>
+<div class="cont">
+  <div class="inst" id="inst"><span>📱</span><span id="itx">Add to Home Screen to use like a real app!</span><button class="ix" onclick="this.parentElement.classList.remove('on')">×</button></div>
+  <div class="rb">💚 Your rate: <strong>$12.50/hour</strong> &nbsp;·&nbsp; Nap break: 11:30 AM – 2:00 PM (not counted)</div>
+  <div class="stl">⚡ Quick Log — tap your shift</div>
+  <div class="qg">
+    <div class="qb" onclick="ql('morning')"><div class="qi">🌅</div><div class="ql">Morning Shift</div><div class="qs">7:30–11:30 AM<br/>4 hrs · $50</div></div>
+    <div class="qb" onclick="ql('afternoon')"><div class="qi">☀️</div><div class="ql">Afternoon Shift</div><div class="qs">2:00–6:00 PM<br/>4 hrs · $50</div></div>
+    <div class="qb" onclick="ql('full')"><div class="qi">📅</div><div class="ql">Full Day</div><div class="qs">Both shifts<br/>8 hrs · $100</div></div>
+    <div class="qb" onclick="ql('custom')"><div class="qi">🎙️</div><div class="ql">Custom / Extra</div><div class="qs">Speak or type it</div></div>
+  </div>
+  <div class="stl">🎙️ Speak or Type</div>
+  <div class="mc">
+    <div class="mr">
+      <div class="mg" id="mg" onclick="toggleMic()">🎤</div>
+      <div><div class="mtt" id="mtt">Tap mic to speak</div><div class="msb" id="msb">Or type in the box below then tap Parse</div></div>
+    </div>
+    <div class="tb" id="tb" contenteditable="true" spellcheck="false" oninput="onTyp()"></div>
+    <div class="pv" id="pv">
+      <div class="pf"><div class="pfl">Date</div><div class="pfv" id="pvDt">-</div></div>
+      <div class="pf"><div class="pfl">Day</div><div class="pfv" id="pvDy">-</div></div>
+      <div class="pf"><div class="pfl">Hours</div><div class="pfv" id="pvHr">-</div></div>
+      <div class="pf"><div class="pfl">Earned</div><div class="pfv" id="pvPy">-</div></div>
+      <div class="pf" style="min-width:100%"><div class="pfl">Shift / Time</div><div class="pfv" id="pvTm">-</div></div>
+      <div class="pf"><div class="pfl">Upfront</div><div class="pfv" id="pvUp">-</div></div>
+      <div class="pf"><div class="pfl">Still Owed</div><div class="pfv" id="pvOw">-</div></div>
+      <div class="pw" id="pvW" style="display:none"></div>
+      <div class="pn" id="pvN"></div>
+    </div>
+    <button class="cb" id="cb" onclick="hBtn()">🔍 Parse &amp; Preview</button>
+  </div>
+  <div class="tips">
+    <div class="stl">💬 What to say — examples</div>
+    <div class="tip"><em>"Today full day"</em> → both shifts, 8hrs, $100</div>
+    <div class="tip"><em>"Today morning shift"</em> → 7:30–11:30 AM, 4hrs, $50</div>
+    <div class="tip"><em>"Yesterday I started at 8 morning"</em> → 8–11:30 AM, 3.5hrs, $43.75</div>
+    <div class="tip"><em>"Today full day upfront 50"</em> → $50 already paid noted</div>
+    <div class="tip"><em>"Today afternoon plus 2 extra hours"</em> → 6hrs, $75</div>
+    <div class="tip"><em>"Monday 10 hours"</em> → custom 10hrs, $125</div>
+  </div>
+  <div class="stl">📋 Session Log</div>
+  <div id="log"><div class="empty"><span class="ei">🗂️</span>No sessions yet!<br/>Tap a quick shift above to start.</div></div>
+</div>
+<div class="ov" id="ov" onclick="closeX()"></div>
+<div class="sh" id="sh">
+  <div class="shh"></div>
+  <div class="sht">📤 Export &amp; Send to Employer</div>
+  <button class="sbb" onclick="xPDF()"><span>📄</span> Download PDF — best to send</button>
+  <button class="sbb" onclick="xCSV()"><span>📊</span> Download CSV — open in Excel</button>
+  <button class="scc" onclick="closeX()">Cancel</button>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const RATE=12.5;
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DN=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+const MO=['january','february','march','april','may','june','july','august','september','october','november','december'];
+const MS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+let data=JSON.parse(localStorage.getItem('bs3')||'[]');
+let recog=null,isRec=false,pend=null,parsed=false;
+render();showInst();
+
+function ql(t){
+  const n=new Date(),base={date:fd(n),day:DAYS[n.getDay()],upfront:0};
+  if(t==='morning'){pend={...base,shift:'Morning',time:'7:30 AM - 11:30 AM',hours:4,pay:50};}
+  else if(t==='afternoon'){pend={...base,shift:'Afternoon',time:'2:00 PM - 6:00 PM',hours:4,pay:50};}
+  else if(t==='full'){pend={...base,shift:'Full Day',time:'7:30 AM-11:30 AM + 2:00 PM-6:00 PM',hours:8,pay:100};}
+  else{document.getElementById('tb').focus();setS('Type your session below 👇','Then tap Parse & Preview');showCB('🔍 Parse & Preview');parsed=false;return;}
+  parsed=true;fillPrev(pend);showCB('✅ Confirm & Save');setS('Quick log ready! ✅','Check preview and confirm');
+}
+
+function toggleMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('Mic not available — please type below');return;}
+  if(!recog){
+    recog=new SR();recog.continuous=false;recog.interimResults=true;recog.lang='en-US';
+    recog.onstart=()=>{isRec=true;document.getElementById('mg').classList.add('rec');document.getElementById('mg').textContent='🔴';setS('Listening… speak now!','Tap again to stop');};
+    recog.onend=()=>{isRec=false;document.getElementById('mg').classList.remove('rec');document.getElementById('mg').textContent='🎤';const tx=(document.getElementById('tb').innerText||'').trim();if(tx){parse(tx);}else{setS('Tap mic to speak','Or type in the box below');}};
+    recog.onerror=()=>{isRec=false;document.getElementById('mg').classList.remove('rec');document.getElementById('mg').textContent='🎤';toast('Mic blocked — type below');};
+    recog.onresult=e=>{document.getElementById('tb').innerText=Array.from(e.results).map(r=>r[0].transcript).join(' ');};
+  }
+  if(isRec){recog.stop();return;}
+  document.getElementById('tb').innerText='';document.getElementById('pv').style.display='none';document.getElementById('cb').style.display='none';
+  parsed=false;pend=null;recog.start();
+}
+
+function onTyp(){parsed=false;showCB('🔍 Parse & Preview');}
+function hBtn(){if(!parsed){const t=(document.getElementById('tb').innerText||'').trim();if(!t){toast('Please speak or type first!');return;}parse(t);}else{save();}}
+
+function parse(raw){
+  const tx=raw.toLowerCase().replace(/,/g,' ').replace(/\s+/g,' ').trim();
+  const n=new Date();const e={upfront:0};
+  // Date
+  if(/\btoday\b/.test(tx)){e.date=fd(n);}
+  else if(/\byesterday\b/.test(tx)){const y=new Date(n);y.setDate(y.getDate()-1);e.date=fd(y);}
+  else{
+    let f=false;
+    for(let i=0;i<DN.length;i++){if(new RegExp('\\b'+DN[i]+'\\b').test(tx)){const d=new Date(n);let df=n.getDay()-i;if(df<0)df+=7;if(df===0)df=7;d.setDate(d.getDate()-df);e.date=fd(d);f=true;break;}}
+    if(!f){
+      const dm=tx.match(/\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/);
+      if(dm){const yr=dm[3]?(dm[3].length===2?'20'+dm[3]:dm[3]):n.getFullYear();e.date=yr+'-'+pd(dm[1])+'-'+pd(dm[2]);}
+      else{let mm=null,dd=null;for(let i=0;i<MO.length;i++){const re=new RegExp('\\b(?:'+MO[i]+'|'+MS[i]+')\\s*(\\d{1,2})(?:st|nd|rd|th)?\\b|\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?(?:'+MO[i]+'|'+MS[i]+')\\b');const mx=tx.match(re);if(mx){mm=i+1;dd=parseInt(mx[1]||mx[2]);break;}}e.date=(mm&&dd)?(n.getFullYear()+'-'+pd(mm)+'-'+pd(dd)):fd(n);}
+    }
+  }
+  e.day=DAYS[new Date(e.date+'T00:00:00').getDay()];
+  const isMo=/\bmorning\b/.test(tx),isAf=/\bafternoon\b/.test(tx),isFu=/\bfull\s*day\b/.test(tx)||(isMo&&isAf);
+  // Late start
+  const lM=tx.match(/(?:start(?:ed)?(?:\s+at)?|from|begin[s]?(?:\s+at)?)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+  let late=null;
+  if(lM&&isMo&&!isAf&&!isFu){let lh=parseInt(lM[1]),lm=lM[2]?parseInt(lM[2]):0;const ap=lM[3]?lM[3].toLowerCase():(lh<7?'pm':'am');if(ap==='pm'&&lh<12)lh+=12;late=lh+lm/60;}
+  // Extra
+  const xM=tx.match(/(\d+(?:\.\d+)?)\s*(?:extra|additional|more|overtime)\s*(?:hours?|hrs?)?|(?:extra|additional|more)\s+(\d+(?:\.\d+)?)\s*(?:hours?|hrs?)/i);
+  const xH=xM?parseFloat(xM[1]||xM[2]):0;
+  // Explicit hours
+  const hM=tx.match(/(\d+(?:\.\d+)?)\s*(?:hours?|hrs?)\b(?!\s*(?:extra|more|add))/i);
+  if(isFu){e.hours=8+xH;e.time='7:30 AM-11:30 AM + 2:00 PM-6:00 PM'+(xH?' + '+xH+'h extra':'');e.shift='Full Day';}
+  else if(isMo){if(late!==null){const w=Math.round(Math.max(0,(11.5-late))*10)/10;e.hours=w+xH;e.time=ft(late)+' - 11:30 AM'+(xH?' + '+xH+'h extra':'');e.shift='Morning (late)';}else{e.hours=4+xH;e.time='7:30 AM - 11:30 AM'+(xH?' + '+xH+'h extra':'');e.shift='Morning';}}
+  else if(isAf){e.hours=4+xH;e.time='2:00 PM - 6:00 PM'+(xH?' + '+xH+'h extra':'');e.shift='Afternoon';}
+  else if(hM){e.hours=parseFloat(hM[1])+xH;e.time='';e.shift='Custom';}
+  else if(xH>0){e.hours=xH;e.time='';e.shift='Extra Hours';}
+  else{const tM=tx.match(/(\d{1,2}(?::\d{2})?)\s*(?:am|pm)?\s*(?:to|till|-|–)\s*(\d{1,2}(?::\d{2})?)\s*(?:am|pm)?/i);if(tM){const pts=tM[0].split(/to|till|-|–/i);const h1=pt(pts[0]);const h2=pt(pts[1]||'');if(h1!==null&&h2!==null){let d=h2-h1;if(d<=0)d+=12;e.hours=Math.round(d*10)/10;}else{e.hours=0;}e.time=tM[0].trim();e.shift='Custom';}else{e.hours=0;e.time='';e.shift='Custom';}}
+  e.pay=Math.round(e.hours*RATE*100)/100;
+  const uM=tx.match(/(?:upfront|advance|up\s*front|paid\s*me|gave\s*me)\s*\$?(\d+(?:\.\d+)?)|(\d+(?:\.\d+)?)\s+(?:upfront|advance)/i);
+  e.upfront=uM?parseFloat(uM[1]||uM[2]):0;
+  e.warn=(e.upfront>e.pay&&e.pay>0)?'Warning: upfront ($'+e.upfront+') is more than earned ($'+e.pay.toFixed(2)+') — check!':'';
+  pend=e;parsed=true;fillPrev(e);showCB('✅ Confirm & Save');setS('Check preview below! 👇','Tap Confirm to save');
+}
+
+function fillPrev(e){
+  document.getElementById('pvDt').textContent=e.date;
+  document.getElementById('pvDy').textContent=e.day||'-';
+  document.getElementById('pvHr').textContent=(e.hours||0).toFixed(1)+'h';
+  document.getElementById('pvPy').textContent='$'+(e.pay||0).toFixed(2);
+  document.getElementById('pvTm').textContent=e.time||(e.shift||'-');
+  document.getElementById('pvUp').textContent='$'+(e.upfront||0).toFixed(2);
+  document.getElementById('pvOw').textContent='$'+Math.max(0,(e.pay||0)-(e.upfront||0)).toFixed(2);
+  const w=document.getElementById('pvW');if(e.warn){w.textContent=e.warn;w.style.display='block';}else{w.style.display='none';}
+  document.getElementById('pvN').textContent=e.shift?'Shift: '+e.shift:'';
+  document.getElementById('pv').style.display='flex';
+}
+
+function save(){
+  if(!pend)return;
+  data.unshift(pend);localStorage.setItem('bs3',JSON.stringify(data));render();
+  document.getElementById('tb').innerText='';document.getElementById('pv').style.display='none';document.getElementById('cb').style.display='none';
+  pend=null;parsed=false;setS('Saved! 🎉','Tap mic or quick-log for next session');toast('Session saved! 🎉');
+}
+
+function render(){
+  const h=data.reduce((s,e)=>s+(e.hours||0),0);
+  const p=data.reduce((s,e)=>s+(e.pay||0),0);
+  const u=data.reduce((s,e)=>s+(e.upfront||0),0);
+  document.getElementById('sH').textContent=h.toFixed(1);
+  document.getElementById('sE').textContent='$'+p.toFixed(2);
+  document.getElementById('sD').textContent=data.length+' day'+(data.length===1?'':'s')+' logged';
+  document.getElementById('sU').textContent='$'+u.toFixed(2)+' paid upfront';
+  const el=document.getElementById('log');
+  if(!data.length){el.innerHTML='<div class="empty"><span class="ei">🗂️</span>No sessions yet!<br/>Tap a quick shift above to start.</div>';return;}
+  el.innerHTML=data.map((e,i)=>'<div class="en"><div class="et"><div><span class="ed">'+e.date+'</span><span class="edy">'+(e.day||'').slice(0,3)+'</span>'+(e.shift?'<span class="esh">'+e.shift+'</span>':'')+'</div><button class="edl" onclick="del('+i+')">✕</button></div><div class="eg"><div class="ef"><div class="efl">Hours</div><div class="efv p">'+(e.hours||0).toFixed(1)+'h</div></div><div class="ef"><div class="efl">Earned</div><div class="efv g">$'+(e.pay||0).toFixed(2)+'</div></div><div class="ef"><div class="efl">Upfront</div><div class="efv a">$'+(e.upfront||0).toFixed(2)+'</div></div><div class="ef"><div class="efl">Owed</div><div class="efv">$'+Math.max(0,(e.pay||0)-(e.upfront||0)).toFixed(2)+'</div></div></div>'+(e.time?'<div class="etm">⏱ '+e.time+'</div>':'')+'</div>').join('');
+}
+
+function del(i){data.splice(i,1);localStorage.setItem('bs3',JSON.stringify(data));render();toast('Removed');}
+function openX(){if(!data.length){toast('No sessions yet!');return;}document.getElementById('sh').classList.add('on');document.getElementById('ov').classList.add('on');}
+function closeX(){document.getElementById('sh').classList.remove('on');document.getElementById('ov').classList.remove('on');}
+
+function xPDF(){
+  closeX();
+  const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  doc.setFillColor(124,58,237);doc.rect(0,0,210,42,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);doc.text('Babysitter Hours Report',14,17);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(220,200,255);
+  doc.text('Rate: $12.50/hour  |  Nap Break: 11:30 AM - 2:00 PM (not counted)',14,26);
+  doc.text('Generated: '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),14,34);
+  doc.setFillColor(237,233,254);doc.rect(10,46,190,14,'F');
+  doc.setFontSize(9);doc.setTextColor(100,80,180);
+  doc.text('Babysitter Name: _________________________________',14,53);
+  doc.text('Employer: ______________________',134,53);
+  const th=data.reduce((s,e)=>s+(e.hours||0),0);
+  const tp=data.reduce((s,e)=>s+(e.pay||0),0);
+  const tu=data.reduce((s,e)=>s+(e.upfront||0),0);
+  const tw=Math.max(0,tp-tu);
+  doc.setFillColor(245,243,255);doc.rect(10,64,190,18,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(109,40,217);doc.text('SUMMARY',14,72);
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(30,27,75);
+  doc.text('Total Hours: '+th.toFixed(1)+'h   |   Earned: $'+tp.toFixed(2)+'   |   Upfront Paid: $'+tu.toFixed(2)+'   |   Still Owed: $'+tw.toFixed(2),14,80);
+  doc.autoTable({startY:86,head:[['Date','Day','Shift','Time','Hours','Earned','Upfront','Owed']],body:data.map(e=>[e.date,(e.day||'').slice(0,3),e.shift||'-',e.time||'-',(e.hours||0).toFixed(1)+'h','$'+(e.pay||0).toFixed(2),'$'+(e.upfront||0).toFixed(2),'$'+Math.max(0,(e.pay||0)-(e.upfront||0)).toFixed(2)]),foot:[['TOTAL','','','',th.toFixed(1)+'h','$'+tp.toFixed(2),'$'+tu.toFixed(2),'$'+tw.toFixed(2)]],headStyles:{fillColor:[124,58,237],textColor:255,fontStyle:'bold',fontSize:8.5},bodyStyles:{fontSize:8.5,textColor:[30,27,75]},alternateRowStyles:{fillColor:[245,243,255]},footStyles:{fillColor:[109,40,217],textColor:255,fontStyle:'bold',fontSize:8.5},styles:{cellPadding:3},columnStyles:{6:{textColor:[5,150,105],fontStyle:'bold'},7:{fontStyle:'bold'}}});
+  const fy=doc.lastAutoTable.finalY+14;
+  if(fy<265){doc.setFontSize(10);doc.setTextColor(100,100,130);doc.text('Employer Signature: _______________________________    Date: ____________',14,fy);}
+  doc.save('babysitter_report_'+fds()+'.pdf');
+  toast('PDF ready! Send it to your employer 📄');
+}
+
+function xCSV(){
+  closeX();
+  const hdr='Date,Day,Shift,Time,Hours,Earned ($),Upfront ($),Owed ($)';
+  const rows=data.map(e=>[e.date,e.day||'',e.shift||'','"'+(e.time||'')+'"',(e.hours||0).toFixed(1),(e.pay||0).toFixed(2),(e.upfront||0).toFixed(2),Math.max(0,(e.pay||0)-(e.upfront||0)).toFixed(2)].join(','));
+  const th=data.reduce((s,e)=>s+(e.hours||0),0),tp=data.reduce((s,e)=>s+(e.pay||0),0),tu=data.reduce((s,e)=>s+(e.upfront||0),0);
+  rows.push(['TOTAL','','','',th.toFixed(1),tp.toFixed(2),tu.toFixed(2),Math.max(0,tp-tu).toFixed(2)].join(','));
+  const b=new Blob([[hdr,...rows].join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='babysitter_hours_'+fds()+'.csv';a.click();
+  toast('CSV downloaded! 📊');
+}
+
+function pt(s){if(!s)return null;s=s.trim();const p=/pm/i.test(s),a=/am/i.test(s);s=s.replace(/[apmAPM\s]/g,'');const ps=s.split(':');let h=parseInt(ps[0])||0;const m=ps[1]?parseInt(ps[1])/60:0;if(p&&h<12)h+=12;else if(!p&&!a&&h<=7)h+=12;return h+m;}
+function ft(h){const hh=Math.floor(h);const mm=Math.round((h-hh)*60);const ap=hh<12?'AM':'PM';const d=hh>12?hh-12:(hh===0?12:hh);return d+':'+String(mm).padStart(2,'0')+' '+ap;}
+function fd(d){return d.getFullYear()+'-'+pd(d.getMonth()+1)+'-'+pd(d.getDate());}
+function fds(){return fd(new Date());}
+function pd(n){return String(n).padStart(2,'0');}
+function setS(t,s){document.getElementById('mtt').textContent=t;document.getElementById('msb').textContent=s;}
+function showCB(l){const b=document.getElementById('cb');b.style.display='block';b.textContent=l;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+function showInst(){
+  const ua=navigator.userAgent;const b=document.getElementById('inst');const t=document.getElementById('itx');
+  if(window.navigator.standalone||window.matchMedia('(display-mode: standalone)').matches)return;
+  if(/iphone|ipad|ipod/i.test(ua)){t.textContent='iPhone: Tap Share → "Add to Home Screen"';b.classList.add('on');}
+  else if(/android/i.test(ua)){t.textContent='Android: Tap ⋮ menu → "Add to Home screen"';b.classList.add('on');}
+}
+</script>
+</body>
+</html>
